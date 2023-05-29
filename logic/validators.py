@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from model import Grid, GameState, Piece
+    from logic.models import Grid, GameState, Piece
+    from game.players import Player
 
 def validate_grid(grid: Grid) -> None:
     if len(grid.cells) != 225:
@@ -31,3 +32,7 @@ def validate_winner(grid: Grid, winner: Piece | None) -> None:
     elif winner == Piece.WHITE:
         if grid.w_count != grid.b_count:
             raise InvalidGameState("Wrong number of black and white pieces")
+        
+def validate_players(player1: Player, player2: Player) -> None:
+    if player1.piece is player2.piece:
+        raise ValueError("Players must have different pieces")
