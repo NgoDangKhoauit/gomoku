@@ -34,6 +34,274 @@ def set_sfx_volume(volume):
     click_sound.set_volume(volume)
     place_sound.set_volume(volume)
 
+def pve_selection():
+    pygame.display.set_caption("pve selection")
+    
+    font = pygame.font.Font(None, )
+    
+    levels = ["Easy", "Medium", "Hard"]
+    time_per_turn = [10, 20, 30, -1, -2]
+    min_per_player = [2, 5, 7, 10, -1, -2]
+    
+    curr_select = 0
+    selected_level = 0
+    selected_time = 0
+    selected_min = 0
+    
+    while True:
+        screen.blit(BG, (0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    curr_select -= 1
+                    if curr_select < 0:
+                        curr_select = 3 - 1
+                elif event.key == pygame.K_DOWN:
+                    curr_select += 1
+                    if curr_select > 3 - 1:
+                        curr_select = 0
+                
+                elif event.key == pygame.K_LEFT:
+                    if curr_select == 0:
+                        selected_level -= 1
+                        if selected_level < 0:
+                            selected_level = len(levels) - 1
+                        
+                    elif curr_select == 1:
+                        selected_time -= 1
+                        if selected_time < 0:
+                            selected_time = len(time_per_turn) - 1
+                            
+                    elif curr_select == 2:
+                        selected_min -= 1
+                        if selected_min < 0:
+                            selected_min = len(min_per_player) - 1
+                            
+                elif event.key == pygame.K_RIGHT:
+                    if curr_select == 0:
+                        selected_level += 1
+                        if selected_level > len(levels) - 1:
+                            selected_level = 0
+                    
+                    elif curr_select == 1:
+                        selected_time += 1
+                        if selected_time > len(time_per_turn) -1:
+                            selected_time = 0
+                    
+                    elif curr_select == 2:
+                        selected_min += 1
+                        if selected_min > len(min_per_player) -1:
+                            selected_min = 0
+                
+                elif event.key == pygame.K_ESCAPE:
+                        options()
+                            
+        difficulty_spacing = screen_size[0] // len(levels)
+        time_spacing = screen_size[0] // len(time_per_turn)
+        min_spacing = screen_size[0] // len(min_per_player)
+        
+        center_x = screen_size[0] // 2
+        center_y = screen_size[1] // 2
+        
+        font = pygame.font.Font(None, 48)
+        
+        text_color = palette.WHITE
+        
+        for i, difficulty in enumerate(levels):
+            text_color = palette.WHITE
+            text = font.render(difficulty, True, text_color)
+            text_rect = text.get_rect()
+            text_rect.center = (center_x + (i - selected_level) * difficulty_spacing, center_y)
+            screen.blit(text, text_rect)
+            
+        for i, time in enumerate(time_per_turn):
+            text_color = palette.WHITE
+            text = font.render(str(time), True, text_color)
+            text_rect = text.get_rect()
+            text_rect.center = (center_x + (i - selected_time) * time_spacing, center_y + 50)
+            screen.blit(text, text_rect)
+            
+        for i, min in enumerate(time_per_turn):
+            text_color = palette.WHITE
+            text = font.render(str(min), True, text_color)
+            text_rect = text.get_rect()
+            text_rect.center = (center_x + (i - selected_min) * min_spacing, center_y + 100)
+            screen.blit(text, text_rect)
+            
+        pygame.display.flip()
+        
+def pvp_selection():
+    pygame.display.set_caption("pvp selection")
+
+    font = pygame.font.Font(None,)
+
+    time_per_turn = [10, 20, 30, "inf", "custom"]
+    min_per_player = [2, 5, 7, 10, "inf", "custom"]
+
+    curr_select = 0
+    selected_time = 0
+    selected_min = 0
+
+    custom_time = ""
+    time_rect = pygame.Rect(screen_size[0] // 2 - 50, screen_size[1] // 8 + 100, 100, 32)
+    custom_min = ""
+    min_rect = pygame.Rect(screen_size[0] // 2 - 50, screen_size[1] // 8 + 300, 100, 32)
+    
+    
+    while True:
+        screen.blit(BG, (0, 0))
+        
+        pvp_mouse_pos = pygame.mouse.get_pos()
+        
+        time_button = Button(image=None, pos=(screen_size[0]//2, screen_size[1]//8),
+                            text_input="Time per turn", font=get_font('Roboto-Medium', 40), base_color="white", hovering_color=palette.HOVER)
+
+        min_button = Button(image=None, pos=(screen_size[0]//2, screen_size[1] // 8 + 200),
+                            text_input="Minutes per player", font=get_font('Roboto-Medium', 40), base_color="white", hovering_color=palette.HOVER)
+
+        for button in [time_button, min_button]:
+            button.changeColor(pygame.mouse.get_pos())
+            button.update(screen)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    curr_select -= 1
+                    if curr_select < 0:
+                        curr_select = 1
+
+                elif event.key == pygame.K_DOWN:
+                    curr_select += 1
+                    if curr_select > 1:
+                        curr_select = 0
+
+                elif event.key == pygame.K_LEFT:
+                    if curr_select == 0:
+                        selected_time -= 1
+                        if selected_time < 0:
+                            selected_time = len(time_per_turn) - 1
+
+                    elif curr_select == 1:
+                        selected_min -= 1
+                        if selected_min < 0:
+                            selected_min = len(min_per_player) - 1
+
+                elif event.key == pygame.K_RIGHT:
+                    if curr_select == 0:
+                        selected_time += 1
+                        if selected_time > len(time_per_turn) - 1:
+                            selected_time = 0
+
+                    elif curr_select == 1:
+                        selected_min += 1
+                        if selected_min > len(min_per_player) - 1:
+                            selected_min = 0
+
+                elif event.key == pygame.K_ESCAPE:
+                    options()
+                
+                if selected_time == len(time_per_turn) - 1:
+                    if event.key == pygame.K_BACKSPACE:
+                        custom_time = custom_time[:-1]
+                    else:
+                        custom_time += event.unicode
+                        
+                if selected_min == len(min_per_player) - 1:
+                    if event.key == pygame.K_BACKSPACE:
+                        custom_min = custom_min[:-1]
+                    else:
+                        custom_min += event.unicode    
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if time_button.checkForInput(pvp_mouse_pos) and event.button == 3:
+                    click_sound.play()
+                    selected_time += 1
+                    if selected_time > len(time_per_turn) - 1:
+                        selected_time = 0
+                elif min_button.checkForInput(pvp_mouse_pos) and event.button == 3:
+                    click_sound.play()
+                    selected_min += 1
+                    if selected_min > len(min_per_player) - 1:
+                        selected_min = 0
+                elif time_button.checkForInput(pvp_mouse_pos) and event.button == 1:
+                    click_sound.play()
+                    selected_time -= 1
+                    if selected_time < 0:
+                        selected_time = len(time_per_turn) - 1
+                elif min_button.checkForInput(pvp_mouse_pos) and event.button == 1:
+                    click_sound.play()
+                    selected_min -= 1
+                    if selected_min < 0:
+                        selected_min = len(min_per_player) - 1
+
+            
+        time_spacing = screen_size[0] // len(time_per_turn)
+        min_spacing = screen_size[0] // len(min_per_player)
+
+        center_x = screen_size[0] // 2
+        center_y = screen_size[1] // 8
+
+        font = pygame.font.Font(None, 48)
+
+        text_color = palette.WHITE
+
+        # Display time per turn
+        for i, time in enumerate(time_per_turn):
+            text_color = palette.RED if curr_select==0 else palette.WHITE
+            text = font.render(str(time), True, text_color)
+            text_rect = text.get_rect()
+            text_rect.center = (center_x + (i - selected_time) * time_spacing, center_y + 50)
+            screen.blit(text, text_rect)
+            
+        if selected_time == len(time_per_turn) - 1:
+            custom_time_text = font.render(custom_time, True, palette.WHITE)
+            custom_time_width = max(50, custom_time_text.get_width())
+
+            # Expand the time_rect on both sides
+            time_rect_width = custom_time_width + 20  # Adjust the width as needed
+            time_rect.left = center_x - time_rect_width // 2
+            time_rect.width = time_rect_width
+
+            # Display custom_time text within the expanded time_rect
+            text_time = font.render(custom_time, True, palette.WHITE)
+            text_time_rect = text_time.get_rect(center=time_rect.center)
+            screen.blit(text_time, text_time_rect)
+            pygame.draw.rect(screen, palette.WHITE, time_rect, 2)
+            
+        # Display minutes per player
+        for i, min in enumerate(min_per_player):
+            text_color = palette.RED if curr_select==1 else palette.WHITE
+            text = font.render(str(min), True, text_color)
+            text_rect = text.get_rect()
+            text_rect.center = (center_x + (i - selected_min) * min_spacing, center_y + 250)
+            screen.blit(text, text_rect)
+
+        if selected_min == len(min_per_player) - 1:
+            custom_min_text = font.render(custom_min, True, palette.WHITE)
+            custom_min_width = max(50, custom_min_text.get_width())
+
+            # Expand the time_rect on both sides
+            min_rect_width = custom_min_width + 20  # Adjust the width as needed
+            min_rect.left = center_x - min_rect_width // 2
+            min_rect.width = min_rect_width
+
+            # Display custom_time text within the expanded time_rect
+            text_min = font.render(custom_min, True, palette.WHITE)
+            text_min_rect = text_min.get_rect(center=min_rect.center)
+            screen.blit(text_min, text_min_rect)
+            pygame.draw.rect(screen, palette.WHITE, min_rect, 2)
+            
+
+        pygame.display.flip()
+        
 def options():
     pygame.display.set_caption("options")
     
@@ -130,10 +398,10 @@ def play_menu():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if pvp_button.checkForInput(menu_mouse_pos):
                     click_sound.play()
-                    
+                    pvp_selection()
                 elif pve_button.checkForInput(menu_mouse_pos):
                     click_sound.play()
-                    
+                    pve_selection()
                 elif bvb_button.checkForInput(menu_mouse_pos):
                     click_sound.play()
                     
@@ -143,15 +411,9 @@ def play_menu():
                     
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    if is_paused:
-                        pygame.mixer.music.unpause()
-                        is_paused = False
-                    else:
-                        pygame.mixer.music.pause()
-                        is_paused = True
+                    main_menu()
                     
         pygame.display.update()
-
 
 def main_menu():
     pygame.display.set_caption("main menu")
@@ -203,3 +465,9 @@ def main_menu():
         pygame.display.update()
 
 main_menu()
+
+
+
+
+
+
