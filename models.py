@@ -31,13 +31,13 @@ class Stone(enum.Enum):
 
 @dataclass
 class Grid:
-    BOARD_SIZE: int 
+    # BOARD_SIZE: int 
     cells: np.ndarray
     cell_size: int
 
-    def __init__(self, size: int, cell_size: int = 50):
-        self.BOARD_SIZE = size
-        self.cells = np.zeros((size, size), dtype=int)
+    def __init__(self, board_size: int, cell_size: int = 50):
+        self.BOARD_SIZE = board_size
+        self.cells = np.zeros((board_size, board_size), dtype=int)
         self.cell_size = cell_size
         self.validate_grid()
         
@@ -136,7 +136,7 @@ class GameState:
         new_cells = np.copy(self.grid.cells)
         new_cells[x, y] = self.current_stone.value
 
-        new_grid = Grid(size=self.grid.BOARD_SIZE)
+        new_grid = Grid(board_size=self.grid.BOARD_SIZE)
         new_grid.cells = new_cells  # Assign the new cells directly to the existing grid
         new_state = GameState(new_grid, self.starting_stone)
         move = Move(self.current_stone, (x, y), self, new_state)
@@ -169,33 +169,3 @@ class GameState:
             pass
 
         return 1 if self.winner == self.starting_stone else -1
-
-# Create a game grid with a size of 10x10
-grid = Grid(size=6)
-
-# Create a game state with the grid
-game_state = GameState(grid)
-
-# Check if the game has started
-# print(game_state.game_not_started)  # True
-
-# # Make a move to cell (3, 4)
-# move = game_state.make_move_to(3, 4)
-
-# print(move.before_state.grid)
-# print()
-# print(move.after_state.grid)
-
-# game_state = move.after_state
-# print()
-# move = game_state.make_random_move()
-# print(move.after_state.grid)
-
-while game_state.game_over == False:
-    move = game_state.make_random_move()
-    game_state = move.after_state
-    print()
-    print(game_state.grid)
-    time.sleep(0)
-    
-print(game_state.winner)
