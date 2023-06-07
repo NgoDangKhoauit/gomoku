@@ -101,47 +101,51 @@ class GameState:
 
     @cached_property
     def winner(self) -> Stone | None:
-        if self.check_connect_five():
-            return self.current_stone
+        for stone in Stone:
+            if self.check_connect_five(stone.value):
+                return stone
 
         return None
 
-    def check_connect_five(self) -> bool:
+    def check_connect_five(self, value) -> bool:
         # Check rows
         for row in range(self.grid.BOARD_SIZE):
             for col in range(self.grid.BOARD_SIZE - 4):
-                if np.all(self.grid.cells[row, col:col+5] == self.current_stone.value):
+                if np.all(self.grid.cells[row, col:col+5] == value):
                     return True
 
         # Check columns
         for col in range(self.grid.BOARD_SIZE):
             for row in range(self.grid.BOARD_SIZE - 4):
-                if np.all(self.grid.cells[row:row+5, col] == self.current_stone.value):
+                if np.all(self.grid.cells[row:row+5, col] == value):
                     return True
 
         # Check diagonals
         for row in range(self.grid.BOARD_SIZE - 4):
             for col in range(self.grid.BOARD_SIZE - 4):
-                if np.all(np.diag(self.grid.cells[row:row+5, col:col+5]) == self.current_stone.value):
+                if np.all(np.diag(self.grid.cells[row:row+5, col:col+5]) == value):
                     return True
-                if np.all(np.diag(np.fliplr(self.grid.cells)[row:row+5, col:col+5]) == self.current_stone.value):
+                if np.all(np.diag(np.fliplr(self.grid.cells)[row:row+5, col:col+5]) == value):
                     return True
 
         return False
 
     def make_move_to(self, x: int, y: int) -> Optional[Move]:
-        if x < 0 or y < 0 or x >= self.grid.BOARD_SIZE or y >= self.grid.BOARD_SIZE or self.grid.cells[x, y] != 0:
-            raise InvalidMove("Invalid move")
+        try:
+            if x < 0 or y < 0 or x >= self.grid.BOARD_SIZE or y >= self.grid.BOARD_SIZE or self.grid.cells[x, y] != 0:
+                raise InvalidMove("Invalid move")
 
-        new_cells = np.copy(self.grid.cells)
-        new_cells[x, y] = self.current_stone.value
+            new_cells = np.copy(self.grid.cells)
+            new_cells[x, y] = self.current_stone.value
 
-        new_grid = Grid(board_size=self.grid.BOARD_SIZE)
-        new_grid.cells = new_cells  # Assign the new cells directly to the existing grid
-        new_state = GameState(new_grid, self.starting_stone)
-        move = Move(self.current_stone, (x, y), self, new_state)
+            new_grid = Grid(board_size=self.grid.BOARD_SIZE)
+            new_grid.cells = new_cells  # Assign the new cells directly to the existing grid
+            new_state = GameState(new_grid, self.starting_stone)
+            move = Move(self.current_stone, (x, y), self, new_state)
 
-        return move
+            return move
+        except InvalidMove:
+            return None
 
     def get_possible_moves(self) -> List[Move]:
         possible_moves = []
@@ -165,7 +169,6 @@ class GameState:
         if self.tie:
             return 0
         if self.winner is None:
-            # raise UnknownGameScore("Cannot determine game score before it's over")
-            pass
+            raise UnknownGameScore("Cannot determine game score before it's over")
 
         return 1 if self.winner == self.starting_stone else -1

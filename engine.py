@@ -1,12 +1,11 @@
+import pygame 
 from dataclasses import dataclass
 from typing import Callable, TypeAlias
-
+import sys, os
 from players import Player
-from models import GameState, Stone, Grid
+import frontend.palette as palette
 from frontend.renderer import Renderer
-from exceptions import InvalidMove
-import pygame, sys, cv2 
-import numpy as np
+from models import GameState, Grid, Stone
 
 ErrorHandler: TypeAlias = Callable[[Exception], None]
 
@@ -19,76 +18,51 @@ class Gomoku:
     renderer: Renderer
     error_handler: ErrorHandler | None = None
     
-    def __post_init__(self) -> None:
-        pass
-    
-    def check_quit(self) -> None:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-                
-    def play(self, game_state: GameState, screen, board_size=15, cell_size=45) -> None:
-        if not game_state.game_over:
+    def play(self) -> None:
+        screen_size = (900, 720)
+        screen = pygame.display.set_mode(screen_size)
+        
+        screen.fill(palette.BOARD_COLOR)
+        Renderer.draw_board(screen, 15, 45)
+        game_state = GameState(Grid(15, 45))
+        renderer = Renderer()
+        
+        player1_score = 0
+        player2_score = 0
+        renderer.draw_score(player1_score, player2_score, screen)
+        start_time = 0
+        while True:
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                    
+            if game_state.game_over:
+                break
             player = self.get_current_player(game_state)
-            game_state = player.make_move(game_state=game_state)
-            self.renderer.draw_grid(screen, game_state.grid, cell_size)
-        return game_state
-    
-    # def play(self, screen, board_size=15, cell_size=45) -> None:
-    #     game_state = GameState(Grid(board_size, cell_size))
-    #     while True:
-    #         self.check_quit()
-    #         while not game_state.game_over:
-    #             self.check_quit()
-
-    #             player = self.get_current_player(game_state)
-    #             if not game_state.game_over:
-    #                 while not player.make_move(game_state=game_state) and not game_state.game_over:
-    #                     self.draw_timer(screen, 0, 30)
-    #                     game_state = player.make_move(game_state=game_state)
-    #                 self.renderer.draw_grid(screen, game_state.grid, cell_size)
-
-                        
+            start_time = pygame.time.get_ticks()
+            renderer.display_time(400, 400, 10, start_time, screen)
+            game_state = player.make_move(game_state)
+            self.renderer.draw_score(player1_score, player2_score, screen, game_state.current_stone.value)
+            renderer.draw_grid(screen=screen, grid=game_state.grid, cell_size=45)   
+            
     def get_current_player(self, game_state: GameState) -> Player:
         if game_state.current_stone is Stone.BLACK:
             return self.player1
         else:
-            return self.player2
-
-    def drawArcCv2(self, surf, color, center, radius, width, start_angle, end_angle):
-        circle_image = np.zeros((radius * 2 + 4, radius * 2 + 4, 4), dtype=np.uint8)
-        circle_image = cv2.ellipse(circle_image, (radius + 2, radius + 2),
-                                   (radius - width // 2, radius - width // 2), 0, start_angle, end_angle,
-                                   (*color, 255), width, lineType=cv2.LINE_AA)
-        circle_surface = pygame.image.frombuffer(circle_image.flatten(), (radius * 2 + 4, radius * 2 + 4), 'RGBA')
-        surf.blit(circle_surface, circle_surface.get_rect(center=center),
-                  special_flags=pygame.BLEND_PREMULTIPLIED)
+            return self.player2 
         
-    def draw_timer(self, screen, minutes, seconds, x_pos=788, y_pos=100):
-        clock = pygame.time.Clock()
-        font = pygame.font.SysFont(None, 50)
-        total_time = minutes * 60 + seconds
-        counter = total_time
-        text = font.render(f"{minutes:02d}:{seconds:02d}", True, (0, 128, 0))
-        timer_event = pygame.USEREVENT + 1
-        pygame.time.set_timer(timer_event, 1000)
-        
-        clock.tick(60)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            elif event.type == timer_event:
-                counter -= 1
-                minutes = counter // 60
-                seconds = counter % 60
-                text = font.render(f"{minutes:02d}:{seconds:02d}", True, (0, 128, 0))
-                if counter == 0:
-                    pygame.time.set_timer(timer_event, 0)
-                    
-        text_rect = text.get_rect(center=screen.get_rect().center)
-        screen.blit(text, text_rect)
-        start_angle = 270  # Starting angle (bottom position)
-        end_angle = 270 - (360 * counter / total_time)  # Ending angle based on the remaining time
-        self.drawArcCv2(screen, (255, 0, 0), (788, 100), 90, 10, start_angle, end_angle)
-        pygame.display.flip()
+    def display_time(self, start_time, duration, screen):
+        current_time = pygame.time.get_ticks() - start_time
+        remaining_time = duration - current_time
+        if remaining_time <= 0:
+            remaining_time = 0
+            
+        seconds = int(current_time / 1000)
+        minutes = int(seconds / 60)
+        seconds = seconds % 60
+        time_string = f"{minutes:02d}:{seconds:02d}"
+        time_surf = pygame.font.Font(None, 30).render(time_string, True, palette.BLACK)
+        time_rect = time_surf.get_rect(center=(400, 400))
+        screen.blit(time_surf, time_rect)
