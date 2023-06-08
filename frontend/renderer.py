@@ -5,6 +5,7 @@ import numpy as np
 from models import GameState, Grid
 import frontend.palette as palette
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from frontend.button import Button
 
 def round_number(number: int):
     if number % 2:
@@ -18,7 +19,7 @@ class Renderer():
 
         return pygame.font.Font("font/font.ttf", size)
     
-    def draw_board(screen, board_size=15, cell_size=45):
+    def draw_board(self, screen, board_size=15, cell_size=45):
         for i in range(1, board_size + 1):
             pygame.draw.line(screen, palette.BLACK, [cell_size * i, cell_size], [cell_size * i, cell_size*15], 2)
             pygame.draw.line(screen, palette.BLACK, [cell_size, cell_size * i], [cell_size*15, cell_size * i], 2)
@@ -50,7 +51,7 @@ class Renderer():
                     pygame.draw.circle(screen, palette.BLACK, [cell_size * (col + 1), cell_size * (row + 1)], cell_size//2)
                 elif grid.cells[row, col] == 2:
                     pygame.draw.circle(screen, palette.WHITE, [cell_size * (col + 1), cell_size * (row + 1)], cell_size//2)
-        update_rect = pygame.Rect(0, 0, cell_size * grid.BOARD_SIZE, cell_size * grid.BOARD_SIZE)
+        update_rect = pygame.Rect(0, 0, cell_size * (grid.BOARD_SIZE + 1), cell_size * (grid.BOARD_SIZE + 1))
         pygame.display.update(update_rect)
         
     def drawArcCv2(self, surf, color, center, radius, width, start_angle, end_angle):
@@ -106,3 +107,6 @@ class Renderer():
         time_surf = pygame.font.Font(None, 30).render(time_string, True, palette.BLACK)
         time_rect = time_surf.get_rect(center=(x, y))
         screen.blit(time_surf, time_rect)
+        
+                
+            
