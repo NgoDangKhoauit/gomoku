@@ -119,9 +119,9 @@ def pvp(time_per_turn, minutes_per_player):
         
         pygame.display.update()
         new_game_button = Button(image=None, pos=(45*15 + 113, 45 + 15), text_input="NEW GAME", 
-                                    font=gameplay_font, base_color=palette.WHITE, hovering_color=palette.RED)
+                                    font=gameplay_font, base_color=palette.BOARD_COLOR, hovering_color=palette.WHITE)
         continue_button = Button(image=None, pos=(45*15 + 113, 45*3), text_input="CONTINUE",
-                                    font=gameplay_font, base_color=palette.WHITE, hovering_color=palette.RED)
+                                    font=gameplay_font, base_color=palette.BOARD_COLOR, hovering_color=palette.WHITE)
         
         for button in [new_game_button, continue_button]:
             button.changeColor(game_mouse_pos)
@@ -139,8 +139,7 @@ def pvp(time_per_turn, minutes_per_player):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # new game
                 if new_game_button.checkForInput(game_mouse_pos):
-                    player1_score = 0
-                    player2_score = 0
+                    score = [0, 0]
                     p1_total_time = minutes_per_player * 60
                     p2_total_time = minutes_per_player * 60
                     counter = time_per_turn
@@ -215,7 +214,7 @@ def pvp(time_per_turn, minutes_per_player):
                 display_total_time(screen, p1_total_time, game_state.current_stone.other.value)
                 game_state = GameState(Grid(15, 45))
                 winner = game_state.winner # None
-                renderer.draw_score(score[0], score[1], screen, game_state.current_stone.value)
+                # renderer.draw_score(score[0], score[1], screen, game_state.current_stone.value)
                 stop = True
-                
-                
+        renderer.draw_score(score[0], score[1], screen, game_state.current_stone.value)
+ 

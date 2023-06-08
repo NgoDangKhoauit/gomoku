@@ -32,11 +32,9 @@ def get_font(name, size):
 
     return pygame.font.Font("font/font.ttf", size)
 
-
 def set_sfx_volume(volume):
     click_sound.set_volume(volume)
     place_sound.set_volume(volume)
-
 
 def pve_selection():
     pygame.display.set_caption("pve selection")
@@ -140,6 +138,7 @@ def pve_selection():
             screen.blit(text, text_rect)
 
         pygame.display.flip()
+
 
 
 def pvp_selection():
@@ -369,7 +368,6 @@ def pvp_selection():
 
         pygame.display.flip()
 
-
 def options():
     pygame.display.set_caption("options")
 
@@ -441,7 +439,6 @@ def options():
 
         pygame.display.flip()  # Update the display
 
-
 def play_menu():
     pygame.display.set_caption("play menu")
 
@@ -492,7 +489,6 @@ def play_menu():
                     main_menu()
 
         pygame.display.update()
-
 
 def main_menu():
     pygame.display.set_caption("main menu")
